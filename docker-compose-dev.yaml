@@ -1,0 +1,41 @@
+services:
+  postgresmain:
+    image: mirror.gcr.io/postgres:16.4-alpine
+    hostname: postgresauth
+    container_name: postgresmain
+    restart: always
+    environment:
+      - POSTGRES_DB=postgresmain
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgresmain:/var/lib/postgresql/data
+
+  miniohack:
+    image: mirror.gcr.io/minio/minio:latest
+    container_name: miniohack
+    restart: always
+    environment:
+      - MINIO_ROOT_USER=minio
+      - MINIO_ROOT_PASSWORD=minio123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    entrypoint: /bin/sh -c
+    command: >
+      "
+      /usr/bin/minio server /data --console-address ':9001' &
+      sleep 5 &&
+      mc alias set myminio http://localhost:9000 minio minio123 &&
+      (mc ls myminio/hack || mc mb myminio/hack) &&
+      mc anonymous set download myminio/hack &&
+      wait
+      "
+
+volumes:
+  postgresmain:
+  minio-data:
