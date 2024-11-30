@@ -63,6 +63,14 @@ services:
       - postgresmock
     ports:
       - "8082:8082"
+
+  rtspservice:
+    build:
+      context: ./RTSPServer
+    #    restart: always
+    ports:
+      - "8083:8083"
+      - "8554:8554"
 volumes:
   postgresmain:
   postgresmock:
