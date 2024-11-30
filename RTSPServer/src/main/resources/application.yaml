@@ -13,7 +13,3 @@ spring:
       enabled: true
   main:
     allow-circular-references: true
-  flyway:
-    enabled: true
-    locations: classpath:db/migration
-    baseline-on-migrate: true
