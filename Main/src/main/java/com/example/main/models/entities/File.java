@@ -32,7 +32,7 @@ public class File {
     @Enumerated(EnumType.STRING)
     private Status status;
 
-    @ManyToOne
+    @OneToOne(orphanRemoval = true)
     @JoinColumn(name = "person_id")
     private Person person;
 

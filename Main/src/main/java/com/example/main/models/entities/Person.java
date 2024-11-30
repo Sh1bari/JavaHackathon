@@ -21,6 +21,6 @@ public class Person {
     private String middleName;
     private String surname;
 
-    @OneToMany(mappedBy = "person", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, orphanRemoval = true)
-    private List<File> files;
+    @OneToOne(mappedBy = "person", orphanRemoval = true)
+    private File file;
 }
