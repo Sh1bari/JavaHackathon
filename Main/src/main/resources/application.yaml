@@ -40,4 +40,4 @@ minio:
   url: ${MINIO_URL:http://localhost:9000}
   accessKey: minio
   secretKey: minio123
-  defaultBucket: echo
+  defaultBucket: hack

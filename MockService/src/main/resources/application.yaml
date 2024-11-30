@@ -1,1 +1,43 @@
-spring.application.name=MockService
+server:
+  forward-headers-strategy: native
+  port: ${SERVER_PORT:8082}
+  jetty:
+    max-http-response-header-size: 200MB
+  servlet:
+    context-path: /model
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+spring:
+  application:
+    name: main-server
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+      enabled: true
+  sql:
+    init:
+      mode: always
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${POSTGRES_ADDRESS:localhost}:${POSTGRES_PORT:5433}/${POSTGRES_DB_NAME:postgresmock}
+    username: ${POSTGRES_USERNAME:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+  jpa:
+    openInView: true
+    show-sql: false
+    generateDdl: false
+    database: postgresql
+    databasePlatform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+  main:
+    allow-circular-references: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true

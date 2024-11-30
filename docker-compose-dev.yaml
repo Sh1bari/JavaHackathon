@@ -1,7 +1,7 @@
 services:
   postgresmain:
     image: mirror.gcr.io/postgres:16.4-alpine
-    hostname: postgresauth
+    hostname: postgresmain
     container_name: postgresmain
     restart: always
     environment:
@@ -12,6 +12,20 @@ services:
       - "5434:5432"
     volumes:
       - postgresmain:/var/lib/postgresql/data
+
+  postgresmock:
+    image: mirror.gcr.io/postgres:16.4-alpine
+    hostname: postgresmock
+    container_name: postgresmock
+    restart: always
+    environment:
+      - POSTGRES_DB=postgresmock
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgresmock:/var/lib/postgresql/data
 
   miniohack:
     image: mirror.gcr.io/minio/minio:latest
@@ -36,6 +50,20 @@ services:
       wait
       "
 
+  mockservice:
+    build:
+      context: ./MockService
+#    restart: always
+    environment:
+      - POSTGRES_ADDRESS=postgresmock
+      - POSTGRES_PORT=5432
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - postgresmock
+    ports:
+      - "8082:8082"
 volumes:
   postgresmain:
+  postgresmock:
   minio-data:

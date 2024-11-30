@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="DatabaseMigrationSettings" lastSelectedDirectory="Main\src\main\resources\db\migration" />
+  <component name="DatabaseMigrationSettings" lastSelectedDirectory="MockService/src/main/resources/db/migration" />
   <component name="JpaPluginProjectSettings">
     <option name="lastSelectedLanguage" value="Java" />
   </component>
@@ -9,6 +9,7 @@
       <persistence-unit name="Default">
         <packages>
           <package value="com.example.main" />
+          <package value="com.example.mockservice" />
         </packages>
       </persistence-unit>
     </persistence-units>
