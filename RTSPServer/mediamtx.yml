@@ -1,0 +1,5 @@
+paths:
+  all:
+    read: yes
+    publish: yes
+    source: record

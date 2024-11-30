@@ -1,9 +1,9 @@
 package com.example.main.models.entities;
 
-import com.example.main.models.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,9 +21,6 @@ public class Person {
     private String middleName;
     private String surname;
 
-    @Enumerated(EnumType.STRING)
-    private Status status = Status.ACTIVE;
-
-    @OneToOne(mappedBy = "person", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, orphanRemoval = true)
+    @OneToOne(mappedBy = "person", orphanRemoval = true)
     private File file;
 }

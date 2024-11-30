@@ -1,0 +1,15 @@
+server:
+  forward-headers-strategy: native
+  port: ${SERVER_PORT:8083}
+  jetty:
+    max-http-response-header-size: 200MB
+spring:
+  application:
+    name: rtsp-server
+  servlet:
+    multipart:
+      max-file-size: 2147483647GB  # Максимально допустимое значение
+      max-request-size: 2147483647GB
+      enabled: true
+  main:
+    allow-circular-references: true
