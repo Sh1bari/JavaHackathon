@@ -1,5 +1,6 @@
 package com.example.main.models.entities;
 
+import com.example.main.models.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,4 +23,7 @@ public class Zone {
 
     @OneToMany(mappedBy = "zone", orphanRemoval = true)
     private List<Camera> cameras = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.ACTIVE;
 }

@@ -43,7 +43,7 @@ public class FaceController {
         }
     }
 
-    @Operation(summary = "Добавить лицо")
+    @Operation(summary = "Проверка лица")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Success")
     })
@@ -57,5 +57,29 @@ public class FaceController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Collections.emptyList());
         }
+    }
+
+    @Operation(summary = "Удаление лица из базы")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
+    @DeleteMapping(value = "/remove_face", consumes = {"multipart/form-data"})
+    public ResponseEntity<String> removeFaces(@RequestParam UUID id) {
+        faceService.deleteFace(id);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body("Removed successfully");
+    }
+
+    @Operation(summary = "Вернуть все лица из базы")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Success")
+    })
+    @DeleteMapping(value = "/get_face", consumes = {"multipart/form-data"})
+    public ResponseEntity<List<UUID>> getAllFaces() {
+        List<UUID> uuids = faceService.findAll();
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(uuids);
     }
 }

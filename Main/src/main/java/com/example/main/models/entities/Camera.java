@@ -1,5 +1,6 @@
 package com.example.main.models.entities;
 
+import com.example.main.models.enums.Status;
 import jakarta.persistence.*;
 import lombok.*;
 @Entity
@@ -16,8 +17,10 @@ public class Camera {
 
     private String label;
 
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.ACTIVE;
+
     @ManyToOne
     @JoinColumn(name = "zone_id")
     private Zone zone;
-
 }

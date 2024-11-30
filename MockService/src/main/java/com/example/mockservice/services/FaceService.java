@@ -1,5 +1,6 @@
 package com.example.mockservice.services;
 
+import com.example.mockservice.exceptions.GeneralException;
 import com.example.mockservice.models.entities.Face;
 import com.example.mockservice.repositories.FaceRepository;
 import com.example.mockservice.utils.MatSerializer;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.bytedeco.opencv.global.opencv_core.minMaxLoc;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
@@ -35,6 +37,18 @@ public class FaceService {
 
     @Autowired
     private MatSerializer matSerializer;
+
+    public List<UUID> findAll() {
+        return faceRepository.findAll()
+                .stream()
+                .map(Face::getId)
+                .collect(Collectors.toList());
+    }
+
+    public Face findById(UUID id){
+        return faceRepository.findById(id)
+                .orElseThrow(() -> new GeneralException(404, "Face Not found"));
+    }
 
     public void addFace(UUID uuid, MultipartFile file) {
         try {
@@ -279,5 +293,9 @@ public class FaceService {
         } catch (IOException e) {
             throw new RuntimeException("Ошибка загрузки файла классификатора", e);
         }
+    }
+
+    public void deleteFace(UUID id) {
+        faceRepository.delete(findById(id));
     }
 }
