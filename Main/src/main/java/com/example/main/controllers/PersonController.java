@@ -3,6 +3,7 @@ package com.example.main.controllers;
 import com.example.main.models.dto.PersonDto;
 import com.example.main.models.entities.Person;
 import com.example.main.models.enums.Status;
+import com.example.main.models.request.ChangePersonDtoReq;
 import com.example.main.models.request.CreatePersonDtoReq;
 import com.example.main.services.PersonService;
 import com.example.main.specifications.PersonSpecifications;
@@ -14,6 +15,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,7 +48,7 @@ public class PersonController {
     }
 
     @GetMapping(value = "/persons/{id}")
-    public ResponseEntity<PersonDto> getPersonById(@PathVariable Long id,
+    public ResponseEntity<PersonDto> getPersonById(@PathVariable UUID id,
                                                    @RequestParam boolean photoIncluded){
         PersonDto res = photoIncluded ?
                 PersonDto.mapFromEntityWithPhoto(personService.findById(id)) :
@@ -56,8 +59,16 @@ public class PersonController {
     }
 
     @PostMapping(value = "/persons",  consumes = {"multipart/form-data"})
-    public ResponseEntity<PersonDto> createPerson(@RequestBody CreatePersonDtoReq dto){
+    public ResponseEntity<PersonDto> createPerson(@RequestBody CreatePersonDtoReq dto) {
         PersonDto res = PersonDto.mapFromEntityWithPhoto(personService.createPerson(dto));
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(res);
+    }
+
+    @PutMapping(value = "/persons",  consumes = {"multipart/form-data"})
+    public ResponseEntity<PersonDto> changePersonPhoto(@RequestBody ChangePersonDtoReq dto){
+        PersonDto res = PersonDto.mapFromEntityWithPhoto(personService.changePerson(dto));
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(res);

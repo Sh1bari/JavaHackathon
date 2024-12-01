@@ -7,6 +7,7 @@
         <option value="$PROJECT_DIR$/Main/pom.xml" />
         <option value="$PROJECT_DIR$/MockService/pom.xml" />
         <option value="$PROJECT_DIR$/RTSPServer/pom.xml" />
+        <option value="$PROJECT_DIR$/PhotoProcessing/pom.xml" />
       </list>
     </option>
   </component>

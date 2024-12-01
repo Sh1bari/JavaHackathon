@@ -15,6 +15,8 @@ public class Camera {
     @Column(name = "id")
     private Long id;
 
+    private String url;
+
     private String label;
 
     @Enumerated(EnumType.STRING)

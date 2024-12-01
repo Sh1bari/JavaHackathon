@@ -4,40 +4,37 @@ import com.example.mockservice.exceptions.GeneralException;
 import com.example.mockservice.models.entities.Face;
 import com.example.mockservice.repositories.FaceRepository;
 import com.example.mockservice.utils.MatSerializer;
+import lombok.RequiredArgsConstructor;
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.opencv.global.opencv_core;
 import org.bytedeco.opencv.global.opencv_imgcodecs;
 import org.bytedeco.opencv.global.opencv_imgproc;
 import org.bytedeco.opencv.opencv_core.*;
 import org.bytedeco.opencv.opencv_objdetect.CascadeClassifier;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.bytedeco.opencv.global.opencv_core.minMaxLoc;
 import static org.bytedeco.opencv.global.opencv_imgproc.*;
 
 @Service
+@RequiredArgsConstructor
 public class FaceService {
     private final CascadeClassifier faceDetector;
 
-    @Autowired
     private FaceRepository faceRepository;
-
-    @Autowired
     private MatSerializer matSerializer;
 
+    @Transactional(readOnly = true)
     public List<UUID> findAll() {
         return faceRepository.findAll()
                 .stream()
@@ -45,12 +42,14 @@ public class FaceService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public Face findById(UUID id){
         return faceRepository.findById(id)
                 .orElseThrow(() -> new GeneralException(404, "Face Not found"));
     }
 
-    public void addFace(UUID uuid, MultipartFile file) {
+    @Transactional
+    public Face addFace(UUID uuid, MultipartFile file) {
         try {
             // Получаем байты изображения
             byte[] bytes = file.getBytes();
@@ -91,20 +90,28 @@ public class FaceService {
                 throw new RuntimeException("Ошибка сериализации изображения: результат пустой.");
             }
 
-            // Сохраняем в базу данных
-            Face face = Face.builder()
-                    .id(uuid)
-                    .faceData(serializedMat)
-                    .build();
+            Face face;
+            Optional<Face> faceOpt = faceRepository.findById(uuid);
+            if (faceOpt.isPresent()){
+                face = faceOpt.get();
+                face.setFaceData(serializedMat);
+            } else {
+                face = Face.builder()
+                        .id(uuid)
+                        .faceData(serializedMat)
+                        .build();
+            }
             faceRepository.save(face);
 
             // Отладочная информация
             System.out.println("Лицо успешно добавлено. UUID: " + uuid);
+            return face;
         } catch (IOException e) {
             throw new RuntimeException("Ошибка чтения файла", e);
         }
     }
 
+    @Transactional(readOnly = true)
     public List<UUID> findMatchingFaces(MultipartFile file) throws ClassNotFoundException {
         try {
             // Декодируем изображение
@@ -295,6 +302,7 @@ public class FaceService {
         }
     }
 
+    @Transactional
     public void deleteFace(UUID id) {
         faceRepository.delete(findById(id));
     }

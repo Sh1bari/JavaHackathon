@@ -35,5 +35,4 @@ public class File {
     @OneToOne(orphanRemoval = true)
     @JoinColumn(name = "person_id")
     private Person person;
-
 }

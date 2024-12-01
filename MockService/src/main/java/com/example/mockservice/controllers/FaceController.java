@@ -1,5 +1,7 @@
 package com.example.mockservice.controllers;
 
+import com.example.mockservice.models.dto.ResponseFaceDto;
+import com.example.mockservice.models.entities.Face;
 import com.example.mockservice.services.FaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -36,8 +38,10 @@ public class FaceController {
             @RequestParam("uuid") UUID uuid,
             @RequestPart("file") MultipartFile file) {
         try {
-            faceService.addFace(uuid, file);
-            return ResponseEntity.ok().body("Face added successfully.");
+            Face face = faceService.addFace(uuid, file);
+            ResponseFaceDto res = ResponseFaceDto.mapFromEntityWithId("Face added successfully",
+                    "success", face.getId());
+            return ResponseEntity.ok().body(res);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
@@ -48,10 +52,22 @@ public class FaceController {
             @ApiResponse(responseCode = "200", description = "Success")
     })
     @PostMapping(value = "/check_face", consumes = {"multipart/form-data"})
-    public ResponseEntity<List<UUID>> matchFaces(@RequestPart("file") MultipartFile file) {
+    public ResponseEntity<?> matchFaces(@RequestPart("file") MultipartFile file) {
         try {
             List<UUID> matchingFaces = faceService.findMatchingFaces(file);
-            return ResponseEntity.ok(matchingFaces);
+            if (!matchingFaces.isEmpty()){
+                List<ResponseFaceDto> res = matchingFaces
+                        .stream()
+                        .map(id -> ResponseFaceDto
+                        .mapFromEntityWithId("Face added successfully", "success", id)).toList();
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(res);
+            } else {
+                ResponseFaceDto res = ResponseFaceDto.mapFromEntityError("Nothing found",
+                        "Not found");
+                return ResponseEntity.status(HttpStatus.OK)
+                        .body(res);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

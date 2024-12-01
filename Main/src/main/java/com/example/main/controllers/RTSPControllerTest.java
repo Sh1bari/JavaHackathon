@@ -1,5 +1,7 @@
 package com.example.main.controllers;
 
+import com.example.main.services.FileService;
+import com.example.main.services.impl.KafkaProducerService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.time.Duration;
@@ -33,6 +34,8 @@ import java.time.Instant;
 @Tag(name = "Test API", description = "")
 public class RTSPControllerTest {
     private static final String RTSP_URL = "rtsp://localhost:8554/stream";
+    private FileService fileService;
+    private KafkaProducerService kafkaProducerService;
 
     @GetMapping("/frame")
     public void getFrame() {
@@ -46,7 +49,6 @@ public class RTSPControllerTest {
 
             Java2DFrameConverter converter = new Java2DFrameConverter();
             Instant lastCaptureTime = Instant.now();
-            int frameCount = 0; // Счётчик для именования файлов
 
             // Захват кадров в цикле
             while (true) {
@@ -56,17 +58,21 @@ public class RTSPControllerTest {
                     break;
                 }
 
-                // Проверяем, прошла ли одна секунда
                 Instant currentTime = Instant.now();
-                if (Duration.between(lastCaptureTime, currentTime).toMillis() >= 1000) {
+                if (Duration.between(lastCaptureTime, currentTime).toMillis() >= 5000) {
                     lastCaptureTime = currentTime;
 
-                    // Преобразуем кадр в BufferedImage
                     BufferedImage bufferedImage = converter.getBufferedImage(frame);
+                    MultipartFile multipartImage = fileService.convertBufferedImageToMultipartFile(
+                            bufferedImage, RTSP_URL + "_" + currentTime.toString());
+                    com.example.main.models.entities.File file = fileService.uploadFile(multipartImage, null);
 
-                    // Выводим размер кадра в консоль и сохраняем файл
-                    int fileSize = getFrameSizeInBytes(bufferedImage, ++frameCount);
-                    log.info("Размер кадра: {} байт", fileSize);
+                    kafkaProducerService.sendDataToKafka(
+                            RTSP_URL, file.getBucket(), file.getName(), currentTime
+                    );
+
+                    log.info("Данные отправлены в Kafka: CameraId={}, Bucket={}, Name={}, Time={}",
+                            RTSP_URL, file.getBucket(), file.getName(), currentTime);
                 }
             }
 

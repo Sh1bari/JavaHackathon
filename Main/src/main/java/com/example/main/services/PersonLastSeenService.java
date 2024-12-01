@@ -1,9 +1,9 @@
 package com.example.main.services;
 
-import lombok.*;
-import org.springframework.stereotype.Service;
+import java.time.Instant;
+import java.util.UUID;
 
-@Service
-@RequiredArgsConstructor
-public class PersonLastSeenService {
+public interface PersonLastSeenService {
+
+    void createPersonLastSeen(String url, UUID personId, Instant time);
 }
