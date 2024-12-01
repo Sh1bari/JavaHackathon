@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
@@ -6,31 +8,33 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
 
-    kafka:
-      image: confluentinc/cp-kafka:latest
-      container_name: kafka
-      depends_on:
-        - zookeeper
-      ports:
-        - "9092:9092"
-      environment:
-        KAFKA_BROKER_ID: 1
-        KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-        KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+
   postgresmain:
     image: mirror.gcr.io/postgres:16.4-alpine
     hostname: postgresmain
     container_name: postgresmain
     restart: always
     environment:
-      - POSTGRES_DB=postgresmain
+      - POSTGRES_DB=postgres
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
       - "5434:5432"
     volumes:
       - postgresmain:/var/lib/postgresql/data
+      - ./init/main:/docker-entrypoint-initdb.d/
 
   postgresmock:
     image: mirror.gcr.io/postgres:16.4-alpine
@@ -72,7 +76,6 @@ services:
   mockservice:
     build:
       context: ./MockService
-#    restart: always
     environment:
       - POSTGRES_ADDRESS=postgresmock
       - POSTGRES_PORT=5432
@@ -86,10 +89,10 @@ services:
   rtspservice:
     build:
       context: ./RTSPServer
-    #    restart: always
     ports:
       - "8083:8083"
       - "8554:8554"
+
 volumes:
   postgresmain:
   postgresmock:

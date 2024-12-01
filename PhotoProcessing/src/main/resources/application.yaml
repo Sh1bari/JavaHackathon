@@ -10,3 +10,4 @@ spring:
     topic:
       receive-data: rtsp-topic
       send-ids: id-topic
+  data:
