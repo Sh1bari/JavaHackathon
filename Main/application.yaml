@@ -5,6 +5,7 @@ server:
     max-http-response-header-size: 200MB
   servlet:
     context-path: /api/main
+
 spring:
   application:
     name: main-server
@@ -25,13 +26,13 @@ spring:
     openInView: true
     show-sql: false
     generateDdl: false
+    hibernate:
+      ddl-auto: none
     database: postgresql
     databasePlatform: org.hibernate.dialect.PostgreSQLDialect
     properties:
       hibernate:
         enable_lazy_load_no_trans: true
-  main:
-    allow-circular-references: true
   flyway:
     enabled: true
     locations: classpath:db/migration
@@ -42,13 +43,28 @@ spring:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
     consumer:
-      group-id: main-service-group
+      group-id: kafka-service-group
       auto-offset-reset: earliest
     topic:
-      send-data: rtsp-topic
-      receive-ids: id-topic
+      receive-data: rtsp-topic
+      send-ids: id-topic
+
 minio:
   url: ${MINIO_URL:http://localhost:9000}
   accessKey: minio
   secretKey: minio123
   defaultBucket: hack
+
+logging:
+  level:
+    root: info
+    org.springframework: debug
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: always
