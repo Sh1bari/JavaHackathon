@@ -15,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -59,7 +60,15 @@ public class PersonController {
     }
 
     @PostMapping(value = "/persons",  consumes = {"multipart/form-data"})
-    public ResponseEntity<PersonDto> createPerson(@RequestBody CreatePersonDtoReq dto) {
+    public ResponseEntity<PersonDto> createPerson(@RequestParam String name,
+                                                  @RequestParam String middleName,
+                                                  @RequestParam String surname,
+                                                  @RequestPart("photo") MultipartFile photo) {
+        CreatePersonDtoReq dto = new CreatePersonDtoReq();
+        dto.setName(name);
+        dto.setMiddleName(middleName);
+        dto.setSurname(surname);
+        dto.setPhoto(photo);
         PersonDto res = PersonDto.mapFromEntityWithPhoto(personService.createPerson(dto));
         return ResponseEntity
                 .status(HttpStatus.OK)
@@ -67,7 +76,15 @@ public class PersonController {
     }
 
     @PutMapping(value = "/persons",  consumes = {"multipart/form-data"})
-    public ResponseEntity<PersonDto> changePersonPhoto(@RequestBody ChangePersonDtoReq dto){
+    public ResponseEntity<PersonDto> changePersonPhoto(@RequestParam(required = false) String name,
+                                                       @RequestParam(required = false) String middleName,
+                                                       @RequestParam(required = false) String surname,
+                                                       @RequestPart(name = "photo", required = false) MultipartFile photo) {
+        ChangePersonDtoReq dto = new ChangePersonDtoReq();
+        dto.setName(name);
+        dto.setMiddleName(middleName);
+        dto.setSurname(surname);
+        dto.setPhoto(photo);
         PersonDto res = PersonDto.mapFromEntityWithPhoto(personService.changePerson(dto));
         return ResponseEntity
                 .status(HttpStatus.OK)

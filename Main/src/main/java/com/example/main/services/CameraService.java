@@ -17,4 +17,9 @@ public interface CameraService {
     public Camera deleteCamera(Long id);
 
     public Camera findById(Long id);
+
+    void subscribeToCamera(Long cameraId);
+    void unsubscribeFromCamera(Long cameraId);
+    void startStreaming();
+    void stopStreaming();
 }

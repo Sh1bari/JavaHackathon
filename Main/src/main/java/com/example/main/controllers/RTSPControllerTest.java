@@ -34,8 +34,8 @@ import java.time.Instant;
 @Tag(name = "Test API", description = "")
 public class RTSPControllerTest {
     private static final String RTSP_URL = "rtsp://localhost:8554/stream";
-    private FileService fileService;
-    private KafkaProducerService kafkaProducerService;
+    private final FileService fileService;
+    private final KafkaProducerService kafkaProducerService;
 
     @GetMapping("/frame")
     public void getFrame() {

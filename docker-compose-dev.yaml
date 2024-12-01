@@ -18,8 +18,11 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
   postgresmain:
     image: mirror.gcr.io/postgres:16.4-alpine
@@ -27,7 +30,7 @@ services:
     container_name: postgresmain
     restart: always
     environment:
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=postgresmain
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     ports:
@@ -86,12 +89,41 @@ services:
     ports:
       - "8082:8082"
 
+  mainservice:
+    build:
+      context: ./Main
+    environment:
+      - POSTGRES_ADDRESS=postgresmain
+      - POSTGRES_PORT=5432
+      - POSTGRES_USERNAME=postgres
+      - POSTGRES_PASSWORD=postgres
+      - KAFKA_SERVER=kafka:9092
+      - MINIO_URL=http://miniohack:9000
+    depends_on:
+      - miniohack
+      - kafka
+      - postgresmain
+    ports:
+      - "8081:8081"
+
   rtspservice:
     build:
       context: ./RTSPServer
     ports:
       - "8083:8083"
       - "8554:8554"
+
+  photoprocessing:
+    build:
+      context: ./PhotoProcessing
+    depends_on:
+      - kafka
+      - miniohack
+    environment:
+      - MINIO_URL=http://miniohack:9000
+      - KAFKA_SERVER=kafka:9092
+    ports:
+      - "8084:8084"
 
 volumes:
   postgresmain:
